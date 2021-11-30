@@ -5,7 +5,7 @@ LABEL maintainer="The Prometheus Authors <prometheus-developers@googlegroups.com
 
 ARG ARCH="amd64"
 ARG OS="linux"
-COPY .build/${OS}-${ARCH}/json_exporter /bin/json_exporter
+COPY json_exporter /bin/json_exporter
 
 EXPOSE      7979
 USER        nobody

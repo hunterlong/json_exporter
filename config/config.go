@@ -20,6 +20,11 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type Module struct {
+	Name    string   `yaml:"name"`
+	Metrics []Metric `yaml:"metrics"`
+}
+
 // Metric contains values that define a metric
 type Metric struct {
 	Name   string
@@ -40,7 +45,7 @@ const (
 // Config contains metrics and headers defining a configuration
 type Config struct {
 	Headers          map[string]string        `yaml:"headers,omitempty"`
-	Metrics          []Metric                 `yaml:"metrics"`
+	Modules          []Module                 `yaml:"modules"`
 	HTTPClientConfig pconfig.HTTPClientConfig `yaml:"http_client_config,omitempty"`
 	Body             Body                     `yaml:"body,omitempty"`
 }
@@ -62,12 +67,14 @@ func LoadConfig(configPath string) (Config, error) {
 	}
 
 	// Complete Defaults
-	for i := 0; i < len(config.Metrics); i++ {
-		if config.Metrics[i].Type == "" {
-			config.Metrics[i].Type = ValueScrape
-		}
-		if config.Metrics[i].Help == "" {
-			config.Metrics[i].Help = config.Metrics[i].Name
+	for m := 0; m < len(config.Modules); m++ {
+		for i := 0; i < len(config.Modules[m].Metrics); i++ {
+			if config.Modules[m].Metrics[i].Type == "" {
+				config.Modules[m].Metrics[i].Type = ValueScrape
+			}
+			if config.Modules[m].Metrics[i].Help == "" {
+				config.Modules[m].Metrics[i].Help = config.Modules[m].Metrics[i].Name
+			}
 		}
 	}
 

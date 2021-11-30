@@ -13,3 +13,7 @@ example_value_boolean{environment="beta",id="id-C"} 0
 # TYPE example_value_count untyped
 example_value_count{environment="beta",id="id-A"} 1
 example_value_count{environment="beta",id="id-C"} 3
+# HELP example_value_timestamp Example of sub-level value scrapes from a json
+# TYPE example_value_timestamp untyped
+example_value_timestamp{environment="beta",id="id-A"} 1.640615419e+09
+example_value_timestamp{environment="beta",id="id-C"} 1.640615419e+09

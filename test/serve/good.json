@@ -5,18 +5,21 @@
             "id": "id-A",
             "count": 1,
             "some_boolean": true,
+            "timestamp": "2021-12-27 14:30:19",
             "state": "ACTIVE"
         },
         {
             "id": "id-B",
             "count": 2,
             "some_boolean": true,
+            "timestamp": "2021-12-27 14:30:19",
             "state": "INACTIVE"
         },
         {
             "id": "id-C",
             "count": 3,
             "some_boolean": false,
+            "timestamp": "2021-12-27 14:30:19",
             "state": "ACTIVE"
         }
     ],

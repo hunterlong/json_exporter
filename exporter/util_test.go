@@ -30,6 +30,7 @@ func TestSanitizeValue(t *testing.T) {
 		{"TRUE", 1.0, true},
 		{"False", 0.0, true},
 		{"FALSE", 0.0, true},
+		{"2021-12-27 14:30:19", 1640615419, true},
 		{"abcd", 0, false},
 		{"{}", 0, false},
 		{"[]", 0, false},

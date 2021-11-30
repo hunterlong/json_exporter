@@ -86,9 +86,15 @@ func probeHandler(w http.ResponseWriter, r *http.Request, logger log.Logger, con
 	defer cancel()
 	r = r.WithContext(ctx)
 
+	module := r.URL.Query().Get("module")
+	if module == "" {
+		http.Error(w, "Module parameter is missing", http.StatusBadRequest)
+		return
+	}
+
 	registry := prometheus.NewPedanticRegistry()
 
-	metrics, err := exporter.CreateMetricsList(config)
+	metrics, err := exporter.CreateMetricsList(config, module)
 	if err != nil {
 		level.Error(logger).Log("msg", "Failed to create metrics list from config", "err", err)
 	}

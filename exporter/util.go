@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"time"
 
 	"github.com/Masterminds/sprig/v3"
 	"github.com/go-kit/log"
@@ -42,6 +43,10 @@ func SanitizeValue(s string) (float64, error) {
 	var err error
 	var value float64
 	var resultErr string
+
+	if v, err := time.Parse("2006-01-02 15:04:05", s); err == nil {
+		return float64(v.Unix()), nil
+	}
 
 	if value, err = strconv.ParseFloat(s, 64); err == nil {
 		return value, nil
@@ -62,9 +67,19 @@ func SanitizeValue(s string) (float64, error) {
 	return value, fmt.Errorf(resultErr)
 }
 
-func CreateMetricsList(c config.Config) ([]JSONMetric, error) {
+func findModule(c config.Config, name string) config.Module {
+	for _, v := range c.Modules {
+		if v.Name == name {
+			return v
+		}
+	}
+	return config.Module{}
+}
+
+func CreateMetricsList(c config.Config, module string) ([]JSONMetric, error) {
 	var metrics []JSONMetric
-	for _, metric := range c.Metrics {
+	moduleMetrics := findModule(c, module)
+	for _, metric := range moduleMetrics.Metrics {
 		switch metric.Type {
 		case config.ValueScrape:
 			var variableLabels, variableLabelsValues []string
@@ -132,7 +147,7 @@ func NewJSONFetcher(ctx context.Context, logger log.Logger, c config.Config, tpl
 
 func (f *JSONFetcher) FetchJSON(endpoint string) ([]byte, error) {
 	httpClientConfig := f.config.HTTPClientConfig
-	client, err := pconfig.NewClientFromConfig(httpClientConfig, "fetch_json", pconfig.WithKeepAlivesDisabled(), pconfig.WithHTTP2Disabled())
+	client, err := pconfig.NewClientFromConfig(httpClientConfig, "fetch_json", pconfig.WithHTTP2Disabled())
 	if err != nil {
 		level.Error(f.logger).Log("msg", "Error generating HTTP client", "err", err)
 		return nil, err

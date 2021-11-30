@@ -32,7 +32,7 @@ func TestFailIfSelfSignedCA(t *testing.T) {
 	}))
 	defer target.Close()
 
-	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL, nil)
+	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+"&module=main", nil)
 	recorder := httptest.NewRecorder()
 	probeHandler(recorder, req, log.NewNopLogger(), config.Config{})
 
@@ -51,7 +51,7 @@ func TestSucceedIfSelfSignedCA(t *testing.T) {
 	}))
 	defer target.Close()
 
-	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL, nil)
+	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+"&module=main", nil)
 	recorder := httptest.NewRecorder()
 	probeHandler(recorder, req, log.NewNopLogger(), c)
 
@@ -86,7 +86,7 @@ func TestDefaultAcceptHeader(t *testing.T) {
 	}))
 	defer target.Close()
 
-	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL, nil)
+	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+"&module=main", nil)
 	recorder := httptest.NewRecorder()
 	probeHandler(recorder, req, log.NewNopLogger(), config.Config{})
 
@@ -102,11 +102,12 @@ func TestCorrectResponse(t *testing.T) {
 	tests := []struct {
 		ConfigFile    string
 		ServeFile     string
+		Module        string
 		ResponseFile  string
 		ShouldSucceed bool
 	}{
-		{"../test/config/good.yml", "/serve/good.json", "../test/response/good.txt", true},
-		{"../test/config/good.yml", "/serve/repeat-metric.json", "../test/response/good.txt", false},
+		{"../test/config/good.yml", "/serve/good.json", "main", "../test/response/good.txt", true},
+		{"../test/config/good.yml", "/serve/repeat-metric.json", "main", "../test/response/good.txt", false},
 	}
 
 	target := httptest.NewServer(http.FileServer(http.Dir("../test")))
@@ -118,7 +119,7 @@ func TestCorrectResponse(t *testing.T) {
 			t.Fatalf("Failed to load config file %s", test.ConfigFile)
 		}
 
-		req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+test.ServeFile, nil)
+		req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+test.ServeFile+"&module="+test.Module, nil)
 		recorder := httptest.NewRecorder()
 		probeHandler(recorder, req, log.NewNopLogger(), c)
 
@@ -145,7 +146,7 @@ func TestBasicAuth(t *testing.T) {
 	}))
 	defer target.Close()
 
-	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL, nil)
+	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+"&module=main", nil)
 	recorder := httptest.NewRecorder()
 	c := config.Config{}
 	auth := &pconfig.BasicAuth{
@@ -175,7 +176,7 @@ func TestBearerToken(t *testing.T) {
 	}))
 	defer target.Close()
 
-	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL, nil)
+	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+"&module=main", nil)
 	recorder := httptest.NewRecorder()
 	c := config.Config{}
 
@@ -206,7 +207,7 @@ func TestHTTPHeaders(t *testing.T) {
 	}))
 	defer target.Close()
 
-	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL, nil)
+	req := httptest.NewRequest("GET", "http://example.com/foo"+"?target="+target.URL+"&module=main", nil)
 	recorder := httptest.NewRecorder()
 	c := config.Config{}
 	c.Headers = headers
@@ -264,7 +265,7 @@ func TestBodyPostTemplate(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		req := httptest.NewRequest("POST", "http://example.com/foo"+"?target="+target.URL, strings.NewReader(test.Body.Content))
+		req := httptest.NewRequest("POST", "http://example.com/foo"+"?target="+target.URL+"&module=main", strings.NewReader(test.Body.Content))
 		recorder := httptest.NewRecorder()
 		c := config.Config{Body: test.Body}
 
@@ -351,7 +352,7 @@ func TestBodyPostQuery(t *testing.T) {
 			w.WriteHeader(http.StatusOK)
 		}))
 
-		req := httptest.NewRequest("POST", "http://example.com/foo"+"?target="+target.URL, strings.NewReader(test.Body.Content))
+		req := httptest.NewRequest("POST", "http://example.com/foo"+"?target="+target.URL+"&module=main", strings.NewReader(test.Body.Content))
 		q := req.URL.Query()
 		for k, v := range test.QueryParams {
 			q.Add(k, v)
